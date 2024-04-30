@@ -1,0 +1,106 @@
+---
+title: "Embryonic area in AT timed matings"
+author: "Andrew Garcia"
+date: "2024-04-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+embryos <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRardz8DQxyjal-BQCrVOqgcEo2Rug6MRojf1h-yJxMPz6NCxl1SqHNmSZx44qS1AYn3_LwYYCtAvyj/pub?gid=260011419&single=true&output=csv")
+
+head(embryos)
+embryos$Naa10.genotype <- as.factor(embryos$Naa10.genotype)
+embryos$Litter.Theiler.stage <-as.factor(embryos$Litter.Theiler.stage)
+structure(embryos$area)
+```
+
+
+```{r}
+install.packages('tidyverse', repos = "http://cran.us.r-project.org")
+```
+```{r}
+install.packages('ggplot2',repos = "http://cran.us.r-project.org")
+```
+
+
+
+```{r}
+install.packages('Rmisc',repos = "http://cran.us.r-project.org")
+```
+
+
+```{r}
+library(Rmisc)
+area.summ <- summarySE(data = embryos, "area..um.",
+          groupvars = c("Naa10.genotype","Litter.Theiler.stage"))
+
+area.summ
+```
+
+```{r}
+install.packages('car', repos = "http://cran.us.r-project.org")
+library(car)
+dev.lm <- lm(area..um. ~ Litter.Theiler.stage+Naa10.genotype,embryos)
+summary(dev.lm)
+```
+
+```{r}
+library(car)
+Anova(dev.lm, type = "III")
+```
+
+```{r}
+install.packages('multcomp', repos = "http://cran.us.r-project.org")
+```
+
+
+```{r}
+library(multcomp)
+
+dev.tukey <- glht(dev.lm,linfct = mcp(Naa10.genotype = "Tukey"))
+summary(dev.tukey)
+
+```
+
+```{r}
+library(ggplot2)
+emb.dev <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=area..um.,shape = Naa10.genotype))+
+  geom_point(aes(shape = Naa10.genotype))+
+     geom_boxplot(outlier.shape = NA,
+               alpha = 0.1)+
+    stat_summary(fun = mean, color = "black", position = position_dodge(0.75),width = 0.2,
+             geom = "crossbar",
+             show.legend = FALSE)+
+   geom_errorbar(data = area.summ, aes(ymin=area..um.-sd,
+                     ymax=area..um.+sd),
+                 width=.2,
+                 position=position_dodge(0.75))+
+  xlab("Theiler stage of litter")+
+  ylab("area (um^2)")+
+  ggtitle("Embryo area during development")
+
+emb.dev
+  
+```
+
+Next (2024-04-23 11:58 AM):
+1) Finish measuring remaining embryos
+
+2) May need to omit females because of insufficient numbers (delayed development more sporadic in females?)
+
+3) Can do two-sample t-tests if I plot Theiler stages individually or ANOVA if I want to have all Theiler stages on plot
+
+Updates (2024-04-29 11:55 AM)
+1) Find matching number of controls for TS15 Naa10 KO/Y embryos probably from another litter
+2) ID 1-2 TS16 Naa10 KO/Y embryos if needed.
+3) May need another column variable (e.g., delayed or normal developing)
+4) May bucket TS12-TS13. Or pair TS14-15, TS16-17, TS17-18
+
+Only one TS16 litter, so may need to bucket with TS17 and thus bucket as described
+2024-04-29 item 4.
+
+Naa10 KO/Y embryos may indeed be delayed developing, but also intrinsically smaller.
