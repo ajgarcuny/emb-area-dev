@@ -34,7 +34,7 @@ install.packages("Rmisc",repos='http://cran.us.r-project.org')
 ## Perimeter analysis
 ```{r}
 library(Rmisc)
-peri.summ <- summarySE(data = embryos, "perimeter..µm.",
+peri.summ <- summarySE(data = embryos, "perimeter..mm.",
           groupvars = c("Naa10.genotype","Litter.Theiler.stage"))
 
 peri.summ
@@ -43,7 +43,7 @@ peri.summ
 ```{r}
 install.packages("car",repos='http://cran.us.r-project.org')
 library(car)
-peri.lm <- lm(perimeter..µm. ~ Litter.Theiler.stage+Naa10.genotype,embryos)
+peri.lm <- lm(perimeter..mm. ~ Litter.Theiler.stage+Naa10.genotype,embryos)
 summary(peri.lm)
 ```
 
@@ -51,6 +51,7 @@ summary(peri.lm)
 library(car)
 Anova(peri.lm, type = "III")
 ```
+
 ```{r}
 plot(peri.lm)
 ```
@@ -66,19 +67,21 @@ library(multcomp)
 dev.tukey <- glht(peri.lm,linfct = mcp(Naa10.genotype = "Tukey"))
 summary(dev.tukey)
 
+ts.tukey <- glht(peri.lm,linfct = mcp(Litter.Theiler.stage = "Tukey"))
+summary(ts.tukey)
 ```
 
 ```{r}
 library(ggplot2)
-peri.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=perimeter..µm.,shape = Naa10.genotype))+
+peri.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=perimeter..mm.,shape = Naa10.genotype))+
   geom_point(aes(shape = Naa10.genotype))+
      geom_boxplot(outlier.shape = NA,
                alpha = 0.1)+
     stat_summary(fun = mean, color = "black", position = position_dodge(0.75),width = 0.2,
              geom = "crossbar",
              show.legend = FALSE)+
-   geom_errorbar(data = peri.summ, aes(ymin=perimeter..µm.-sd,
-                     ymax=perimeter..µm.+sd),
+   geom_errorbar(data = peri.summ, aes(ymin=perimeter..mm.-sd,
+                     ymax=perimeter..mm.+sd),
                  width=.2,
                  position=position_dodge(0.75))+
   xlab("Theiler stage of litter")+
@@ -94,8 +97,8 @@ peri.plot
 ## Area analysis
 
 ```{r}
-area.peri.plot <- ggplot(embryos, aes(x= perimeter..µm.,
-                    y=area..µm.2.,
+area.peri.plot <- ggplot(embryos, aes(x= perimeter..mm.,
+                    y=area..mm.2.,
                     shape = Naa10.genotype))+
   geom_point(aes(shape = Naa10.genotype))
 
@@ -105,7 +108,7 @@ area.peri.plot
 
 ```{r}
 library(Rmisc)
-area.summ <- summarySE(data = embryos, "area..µm.2.",
+area.summ <- summarySE(data = embryos, "area..mm.2.",
           groupvars = c("Naa10.genotype","Litter.Theiler.stage"))
 
 area.summ
@@ -113,7 +116,7 @@ area.summ
 
 ```{r}
 library(car)
-area.lm <- lm(area..µm.2. ~ Litter.Theiler.stage+Naa10.genotype,embryos)
+area.lm <- lm(area..mm.2. ~ Litter.Theiler.stage+Naa10.genotype,embryos)
 summary(area.lm)
 ```
 
@@ -139,19 +142,19 @@ summary(dev.tukey)
 
 ```{r}
 library(ggplot2)
-area.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=area..µm.2.,shape = Naa10.genotype))+
+area.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=area..mm.2.,shape = Naa10.genotype))+
   geom_point(aes(shape = Naa10.genotype))+
      geom_boxplot(outlier.shape = NA,
                alpha = 0.1)+
     stat_summary(fun = mean, color = "black", position = position_dodge(0.75),width = 0.2,
              geom = "crossbar",
              show.legend = FALSE)+
-   geom_errorbar(data = area.summ, aes(ymin=area..µm.2.-sd,
-                     ymax=area..µm.2.+sd),
+   geom_errorbar(data = area.summ, aes(ymin=area..mm.2.-sd,
+                     ymax=area..mm.2.+sd),
                  width=.2,
                  position=position_dodge(0.75))+
   xlab("Theiler stage of litter")+
-  ylab("area (µm^2)")+
+  ylab("area (mm^2)")+
   ggtitle("embryo area during development")+
   theme_bw(base_size = 12, base_family = "Helvetica")
 
@@ -164,8 +167,23 @@ area.plot
 
 ```{r}
 library(car)
-alt.lm <- lm(area..µm.2. ~ perimeter..µm.*Litter.Theiler.stage*Naa10.genotype,embryos)
+alt.lm <- lm(area..mm.2. ~ perimeter..mm.*Litter.Theiler.stage*Naa10.genotype,embryos)
 summary(area.lm)
+```
+
+
+```{r}
+library(ggplot2)
+litter.plot <- ggplot(embryos, aes(x= Litter,y=perimeter..mm.,shape = Naa10.genotype))+
+  geom_point(aes(shape = Naa10.genotype))+
+     geom_boxplot(outlier.shape = NA,
+               alpha = 0.1)+
+  xlab("Theiler stage of litter")+
+  ylab("perimeter (mm)")+
+  ggtitle("Embryo perimeter during development")+
+  theme_bw(base_size = 12, base_family = "Helvetica")
+
+litter.plot
 ```
 
 
