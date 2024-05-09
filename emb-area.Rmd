@@ -85,7 +85,7 @@ peri.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=perimeter..mm.,shape 
                  width=.2,
                  position=position_dodge(0.75))+
   xlab("Theiler stage of litter")+
-  ylab("perimeter (µm)")+
+  ylab("perimeter (mm)")+
   ggtitle("Embryo perimeter during development")+
   theme_bw(base_size = 12, base_family = "Helvetica")
 
@@ -155,7 +155,8 @@ area.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=area..mm.2.,shape = N
                  position=position_dodge(0.75))+
   xlab("Theiler stage of litter")+
   ylab("area (mm^2)")+
-  ggtitle("embryo area during development")+
+  ggtitle("embryo area during development
+          (n=32)")+
   theme_bw(base_size = 12, base_family = "Helvetica")
 
 area.plot
@@ -180,7 +181,8 @@ litter.plot <- ggplot(embryos, aes(x= Litter,y=perimeter..mm.,shape = Naa10.geno
                alpha = 0.1)+
   xlab("Theiler stage of litter")+
   ylab("perimeter (mm)")+
-  ggtitle("Embryo perimeter during development")+
+  ggtitle("Embryo perimeter during development
+          (n=32)")+
   theme_bw(base_size = 12, base_family = "Helvetica")
 
 litter.plot
