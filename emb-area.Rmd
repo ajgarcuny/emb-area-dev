@@ -32,6 +32,9 @@ install.packages("Rmisc",repos='http://cran.us.r-project.org')
 ```
 
 ## Perimeter analysis
+
+### Perimeter summary statistics
+#### Grouped by Naa10 genotype and Litter Theiler stage
 ```{r}
 library(Rmisc)
 peri.summ <- summarySE(data = embryos, "perimeter..mm.",
@@ -40,16 +43,42 @@ peri.summ <- summarySE(data = embryos, "perimeter..mm.",
 peri.summ
 ```
 
+
+### Linear model
+
+#### Interacting factors
+
 ```{r}
 install.packages("car",repos='http://cran.us.r-project.org')
 library(car)
-peri.lm <- lm(perimeter..mm. ~ Litter.Theiler.stage+Naa10.genotype,embryos)
-summary(peri.lm)
+interaction.lm <- lm(perimeter..mm. ~ Litter.Theiler.stage*Naa10.genotype, embryos)
+```
+
+```{r}
+plot(interaction.lm)
 ```
 
 ```{r}
 library(car)
-Anova(peri.lm, type = "III")
+Anova(interaction.lm, type = "III",singular.ok = TRUE)
+```
+
+
+
+Interaction between both variables is significant, so we can test each
+variable separately.
+
+```{r}
+install.packages("multcomp",repos='http://cran.us.r-project.org')
+```
+
+
+#### Variance when Naa10 and genotype are separated
+
+##### Naa10 genotype
+```{r}
+library(car)
+peri.lm <- lm(perimeter..mm. ~ Litter.Theiler.stage+Naa10.genotype, embryos)
 ```
 
 ```{r}
@@ -57,20 +86,24 @@ plot(peri.lm)
 ```
 
 ```{r}
-install.packages("multcomp",repos='http://cran.us.r-project.org')
+library(car)
+Anova(peri.lm, type = "III",singular.ok = TRUE)
 ```
-
 
 ```{r}
 library(multcomp)
 
-dev.tukey <- glht(peri.lm,linfct = mcp(Naa10.genotype = "Tukey"))
-summary(dev.tukey)
-
 ts.tukey <- glht(peri.lm,linfct = mcp(Litter.Theiler.stage = "Tukey"))
 summary(ts.tukey)
+
+geno.tukey <- glht(peri.lm,linfct = mcp(Naa10.genotype = "Tukey"))
+summary(geno.tukey)
 ```
 
+
+
+
+### Data viz
 ```{r}
 library(ggplot2)
 peri.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=perimeter..mm.,shape = Naa10.genotype))+
