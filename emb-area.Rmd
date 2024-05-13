@@ -14,9 +14,9 @@ is much smaller. Delay observed in females, but occurs more sporadically.
 ```{r}
 embryos <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRardz8DQxyjal-BQCrVOqgcEo2Rug6MRojf1h-yJxMPz6NCxl1SqHNmSZx44qS1AYn3_LwYYCtAvyj/pub?gid=260011419&single=true&output=csv")
 
-head(embryos)
 embryos$Naa10.genotype <- as.factor(embryos$Naa10.genotype)
 embryos$Litter.Theiler.stage <-as.factor(embryos$Litter.Theiler.stage)
+head(embryos)
 structure(embryos$area)
 ```
 
@@ -43,15 +43,35 @@ peri.summ <- summarySE(data = embryos, "perimeter..mm.",
 peri.summ
 ```
 
+#### summary statistics by Naa10 genotype
+```{r}
+peri.summ1 <- summarySE(data = embryos, "perimeter..mm.",
+          groupvars = c("Naa10.genotype"))
+
+peri.summ1
+
+
+```
+
+
+#### summary statistics by Theiler stage
+```{r}
+peri.summ2 <- summarySE(data = embryos, "perimeter..mm.",
+          groupvars = c("Litter.Theiler.stage"))
+
+peri.summ2
+
+```
+
 
 ### Linear model
 
-#### Interacting factors
+#### What if TS and Naa10 genotype interact?
 
 ```{r}
 install.packages("car",repos='http://cran.us.r-project.org')
 library(car)
-interaction.lm <- lm(perimeter..mm. ~ Litter.Theiler.stage*Naa10.genotype, embryos)
+interaction.lm <- lm(perimeter..mm. ~ Naa10.genotype+Litter.Theiler.stage+ Litter.Theiler.stage*Naa10.genotype, embryos)
 ```
 
 ```{r}
@@ -61,6 +81,8 @@ plot(interaction.lm)
 ```{r}
 library(car)
 Anova(interaction.lm, type = "III",singular.ok = TRUE)
+
+#perimeter..mm. is colinear with one of the explanatory variables
 ```
 
 
@@ -73,7 +95,21 @@ install.packages("multcomp",repos='http://cran.us.r-project.org')
 ```
 
 
-#### Variance when Naa10 and genotype are separated
+```{r, echo=FALSE,eval=FALSE}
+library(multcomp)
+interaction.tukey1 <- glht(interaction.lm,linfct = mcp(Litter.Theiler.stage = "Tukey"))
+summary(interaction.tukey1)
+```
+
+
+```{r, echo=FALSE, eval=FALSE}
+library(multcomp)
+interaction.tukey2 <- glht(interaction.lm,linfct = mcp(Naa10.genotype = "Tukey"))
+summary(interaction.tukey2)
+```
+
+
+#### Variance when main effects of Naa10 genotype and TS are assessed separately
 
 ##### Naa10 genotype
 ```{r}
@@ -100,7 +136,8 @@ geno.tukey <- glht(peri.lm,linfct = mcp(Naa10.genotype = "Tukey"))
 summary(geno.tukey)
 ```
 
-
+Naa10 genotype seems to be the main contributor of variation in the
+peri.lm model.
 
 
 ### Data viz
