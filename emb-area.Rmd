@@ -66,21 +66,24 @@ peri.summ2
 
 ### Linear model
 
-#### What if TS and Naa10 genotype interact?
+#### TS and Naa10 genotype interaction
 
 ```{r}
 install.packages("car",repos='http://cran.us.r-project.org')
 library(car)
-interaction.lm <- lm(perimeter..mm. ~ Naa10.genotype+Litter.Theiler.stage+ Litter.Theiler.stage*Naa10.genotype, embryos)
+peri.int.lm <- lm(perimeter..mm. ~ Litter.Theiler.stage*Naa10.genotype, embryos)
+
+aov(peri.int.lm)
+summary(aov(peri.int.lm))
 ```
 
 ```{r}
-plot(interaction.lm)
+plot(peri.int.lm)
 ```
 
 ```{r}
 library(car)
-Anova(interaction.lm, type = "III",singular.ok = TRUE)
+Anova(peri.int.lm, type = "III",singular.ok = TRUE)
 
 #perimeter..mm. is colinear with one of the explanatory variables
 ```
@@ -97,14 +100,14 @@ install.packages("multcomp",repos='http://cran.us.r-project.org')
 
 ```{r, echo=FALSE,eval=FALSE}
 library(multcomp)
-interaction.tukey1 <- glht(interaction.lm,linfct = mcp(Litter.Theiler.stage = "Tukey"))
+interaction.tukey1 <- glht(peri.int.lm,linfct = mcp(Litter.Theiler.stage = "Tukey"))
 summary(interaction.tukey1)
 ```
 
 
 ```{r, echo=FALSE, eval=FALSE}
 library(multcomp)
-interaction.tukey2 <- glht(interaction.lm,linfct = mcp(Naa10.genotype = "Tukey"))
+interaction.tukey2 <- glht(peri.int.lm,linfct = mcp(Naa10.genotype = "Tukey"))
 summary(interaction.tukey2)
 ```
 
@@ -124,6 +127,7 @@ plot(peri.lm)
 ```{r}
 library(car)
 Anova(peri.lm, type = "III",singular.ok = TRUE)
+
 ```
 
 ```{r}
@@ -140,7 +144,7 @@ Naa10 genotype seems to be the main contributor of variation in the
 peri.lm model.
 
 
-### Data viz
+### Perimeter viz
 ```{r}
 library(ggplot2)
 peri.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=perimeter..mm.,shape = Naa10.genotype))+
@@ -156,7 +160,8 @@ peri.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=perimeter..mm.,shape 
                  position=position_dodge(0.75))+
   xlab("Theiler stage of litter")+
   ylab("perimeter (mm)")+
-  ggtitle("Embryo perimeter during development")+
+  ggtitle("Embryo perimeter during development
+          (n=32)")+
   theme_bw(base_size = 12, base_family = "Helvetica")
 
 peri.plot
@@ -165,7 +170,7 @@ peri.plot
 
 
 ## Area analysis
-
+### Separate main effects of area, TS, and Naa10 genotype
 ```{r}
 area.peri.plot <- ggplot(embryos, aes(x= perimeter..mm.,
                     y=area..mm.2.,
@@ -176,6 +181,7 @@ area.peri.plot
 ```
 
 
+### summary data
 ```{r}
 library(Rmisc)
 area.summ <- summarySE(data = embryos, "area..mm.2.",
@@ -184,10 +190,14 @@ area.summ <- summarySE(data = embryos, "area..mm.2.",
 area.summ
 ```
 
+### area with separate main effects
+
 ```{r}
 library(car)
 area.lm <- lm(area..mm.2. ~ Litter.Theiler.stage+Naa10.genotype,embryos)
 summary(area.lm)
+
+summary(aov(area.lm))
 ```
 
 
@@ -201,19 +211,39 @@ Anova(area.lm, type = "III")
 ```
 
 
+### Interaction of TS and Naa10 genotype
+
 
 ```{r}
-library(multcomp)
+library(car)
+area.int.lm <- lm(area..mm.2. ~ Litter.Theiler.stage*Naa10.genotype,embryos)
+summary(area.int.lm)
+summary(aov(area.int.lm))
+```
 
-dev.tukey <- glht(area.lm,linfct = mcp(Naa10.genotype = "Tukey"))
-summary(dev.tukey)
 
+```{r}
+plot(area.int.lm)
 ```
 
 ```{r}
+library(car)
+Anova(area.int.lm, type = "III",singular.ok = TRUE)
+```
+
+```{r, eval=FALSE,echo=FALSE}
+library(multcomp)
+
+dev.tukey <- glht(area.int.lm,linfct = mcp(Naa10.genotype = "Tukey"))
+summary(dev.tukey)
+
+```
+### Area viz
+```{r}
 library(ggplot2)
+
 area.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=area..mm.2.,shape = Naa10.genotype))+
-  geom_point(aes(shape = Naa10.genotype))+
+  geom_point(aes(shape = Naa10.genotype),position = position_dodge(1))+
      geom_boxplot(outlier.shape = NA,
                alpha = 0.1)+
     stat_summary(fun = mean, color = "black", position = position_dodge(0.75),width = 0.2,
@@ -245,7 +275,7 @@ summary(area.lm)
 
 ```{r}
 library(ggplot2)
-litter.plot <- ggplot(embryos, aes(x= Litter,y=perimeter..mm.,shape = Naa10.genotype))+
+litter.plot <- ggplot(embryos, aes(x= Naa10.genotype,y=perimeter..mm.,shape = Litter.Theiler.stage))+
   geom_point(aes(shape = Naa10.genotype))+
      geom_boxplot(outlier.shape = NA,
                alpha = 0.1)+
