@@ -213,6 +213,11 @@ Anova(area.lm, type = "III")
 
 ### Interaction of TS and Naa10 genotype
 
+#### Balanced data?
+```{r}
+with(embryos,table(Litter.Theiler.stage,Naa10.genotype))
+```
+
 
 ```{r}
 library(car)
@@ -226,10 +231,18 @@ summary(aov(area.int.lm))
 plot(area.int.lm)
 ```
 
+#### Type II ANOVA
+```{r}
+library(car)
+Anova(area.int.lm, type = "II")
+```
+
+#### Type III ANOVA
 ```{r}
 library(car)
 Anova(area.int.lm, type = "III",singular.ok = TRUE)
 ```
+
 
 ```{r, eval=FALSE,echo=FALSE}
 library(multcomp)
@@ -242,8 +255,8 @@ summary(dev.tukey)
 ```{r}
 library(ggplot2)
 
-area.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=area..mm.2.,shape = Naa10.genotype))+
-  geom_point(aes(shape = Naa10.genotype),position = position_dodge(1))+
+area.plot <- ggplot(embryos, aes(x= Litter.Theiler.stage,y=area..mm.2., shape = Naa10.genotype))+
+  geom_point(aes(color = Naa10.genotype),position = position_dodge(1),alpha = 1000)+
      geom_boxplot(outlier.shape = NA,
                alpha = 0.1)+
     stat_summary(fun = mean, color = "black", position = position_dodge(0.75),width = 0.2,
